@@ -30,13 +30,13 @@
 
 ### [](#beans-basics)1.2. 容器概述
 
-`org.springframework.context.ApplicationContext`是Spring IoC容器实现的代表，它负责实例化，配置和组装Bean。容器通过读取配置元数据获取有关实例化、配置和组装哪些对象的说明 。配置元数据可以使用XML、Java注解或Java代码来呈现。它允许你处理应用程序的对象与其他对象之间的互相依赖关系。
+`org.springframework.context.ApplicationContext`是Spring IoC容器实现的代表，它负责实例化，配置和组装Bean。容器通过读取配置元数据获取有关实例化、配置和组装对象的说明 。配置元数据可以使用XML、Java注解或Java代码来呈现。它允许你处理应用程序的对象与其他对象之间的互相依赖关系。
 
 Spring提供了`ApplicationContext`接口的几个实现。 在独立应用程序中，通常创建[`ClassPathXmlApplicationContext`](https://docs.spring.io/spring-framework/docs/5.1.3.BUILD-SNAPSHOT/javadoc-api/org/springframework/context/support/ClassPathXmlApplicationContext.html)或[`FileSystemXmlApplicationContext`](https://docs.spring.io/spring-framework/docs/5.1.3.BUILD-SNAPSHOT/javadoc-api/org/springframework/context/support/FileSystemXmlApplicationContext.html)的实例。虽然XML一直是定义配置元数据的传统格式， 但是您可以指定容器使用Java注解或编程的方式编写元数据格式，并通过提供少量的XML配置以声明对某些额外元数据的支持。
 
 在大多数应用场景中，不需要用户显式的编写代码来实例化IOC容器的一个或者多个实例。例如，在Web应用场景中，只需要在web.xml中添加大概8行简单的web描述样板就行了。（ [便捷的ApplicationContext实例化Web应用程序](#context-create)） 如果你使用的是基于Eclipse的[Spring Tool Suite](https://spring.io/tools/sts)开发环境，该样板配置只需点击几下鼠标或按几下键盘就能创建了。
 
-下图展示了Spring工作方式的高级视图，应用程序的类与元数据配置相互配合，这样，在`ApplicationContext`创建和初始化后，你立即拥有一个可配置的，可执行的系统或应用程序。
+下图展示了Spring工作方式的高级视图，通过应用程序的类与元数据配置相互配合，在`ApplicationContext`创建和初始化后，你立即拥有一个可配置的，可执行的系统或应用程序。
 
 ![container magic](https://github.com/DocsHome/spring-docs/blob/master/pages/images/container-magic.png)
 
@@ -60,7 +60,7 @@ XML并不是配置元数据的唯一方式，Spring IoC容器本身是完全与�
 
 Spring配置至少一个（通常不止一个）由容器来管理。基于XML的元数据配置将这些bean配置为`<bean/>`元素，并放置于`<bean/>`元素内部。 典型的Java配置是在使用`@Configuration`注解过的类中，在它的方法上使用`@Bean`注解。
 
-这些bean定义会对应到构成应用程序的实际对象。通常你会定义服务层对象，数据访问对象（DAOs），表示对象(如Struts `Action`的实例)，基础对象（如Hibernate 的`SessionFactories`, JMS `Queues`）。通常不会在容器中配置细粒度的域对象，但是，因为它的创建和加载通常是DAO和业务逻辑的任务。 但是，你可以使用Spring与AspectJ 集成独立于 IoC 容器来创建的对象，请参阅[AspectJ在Spring中进行依赖关系注入域对象](#aop-atconfigurable)
+这些bean定义会对应到构成应用程序的实际对象。通常你会定义服务层对象，数据访问对象（DAOs），表示对象(如Struts `Action`的实例)，基础对象（如Hibernate 的`SessionFactories`, JMS `Queues`）。通常不会在容器中配置细粒度的域对象，因为它的创建和加载通常是DAO和业务逻辑的任务。 然而，你可以使用Spring与AspectJ 集成独立于 IoC 容器来创建的对象，请参阅[AspectJ在Spring中进行依赖关系注入域对象](#aop-atconfigurable)
 
 下面的示例显示了基于XML元数据配置的基本结构:
 
@@ -168,7 +168,7 @@ Spring配置至少一个（通常不止一个）由容器来管理。基于XML�
         <bean id="bean2" class="..."/>
     </beans>
 
-上面的例子中，使用了3个文件：`services.xml`, `messageSource.xml`, 和 `themeSource.xml`来加载外部Bean的定义。 导入文件采用的都是相对路径，因此`services.xml`必须和导入文件位于同一目录或类路径中，而`messageSource.xml` 和 `themeSource.xml` 必须在导入文件的资源位置中。正如你所看到的，前面的斜线将会被忽略，但考虑到这些路径是相对的，最佳的使用是不用斜线的。 这个XML文件的内容都会被导入，包括顶级的 `<beans/>`元素，但必须遵循Spring Schema定义XML bean定义的规则 。
+上面的例子中，使用了3个文件：`services.xml`, `messageSource.xml`, 和 `themeSource.xml`来加载外部Bean的定义。 导入文件采用的都是相对路径，因此`services.xml`必须和导入文件位于同一目录或类路径中，而`messageSource.xml` 和 `themeSource.xml` 必须在导入文件的resource位置中。正如你所看到的，前面的斜线将会被忽略，但考虑到这些路径是相对的，最佳的使用是不用斜线的。 这个XML文件的内容都会被导入，包括顶级的 `<beans/>`元素，但必须遵循Spring Schema定义XML bean定义的规则 。
 
 这种相对路径的配置是可行的，但不推荐这样做，引用在使用相对于"../"路径的父目录文件中，这样做会对当前应用程序之外的文件产生依赖关系。 特别是对于`classpath:`: URLs(例如`classpath:../services.xml`)，不建议使用此引用，因为在该引用中，运行时解析过程选择“最近的”classpath根目录，然后查看其父目录。 类路径的变化或者选择了不正确的目录都会导致此配置不可用。
 
